@@ -107,7 +107,6 @@ export default function AdminServices() {
           />
           <input
             type="number"
-            step="0.1"
             placeholder="Коэфф. сложности"
             className="border rounded px-3 py-2"
             value={form.complexity_factor}
