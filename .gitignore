@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.db
+*.sqlite
+*.sqlite3
+logs/
+.DS_Store
+.env
+*.log
+
+# Node
+node_modules/
+.next/
+out/
+dist/
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Секреты
+.env
+.env.local
+.env.production
+*.pem
+*.key

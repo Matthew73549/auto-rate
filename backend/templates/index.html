@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoRate — Честные цены на автоуслуги</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Шапка */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+        
+        .logo span {
+            color: #4CAF50;
+        }
+        
+        .logo-sub {
+            font-size: 14px;
+            color: #666;
+            margin-left: 10px;
+        }
+        
+        .header-buttons button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-login {
+            background: #f5f5f5;
+            color: #1a1a1a;
+        }
+        
+        .btn-login:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-start {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-start:hover {
+            background: #45a049;
+        }
+        
+        /* Главный блок */
+        .hero {
+            padding: 60px 0;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 60px;
+            align-items: start;
+        }
+        
+        .hero-content h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+        
+        .hero-content .subtitle {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 40px;
+            max-width: 500px;
+        }
+        
+        /* Форма поиска */
+        .search-form {
+            margin-bottom: 30px;
+        }
+        
+        .search-form input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        .search-form input:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        
+        .btn-search {
+            width: 100%;
+            padding: 16px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn-search:hover {
+            background: #1976D2;
+        }
+        
+        /* Навигация */
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .nav-links a {
+            color: #2196F3;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: #1976D2;
+        }
+        
+        /* Карточка превью */
+        .preview-card {
+            background: #f9f9f9;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .preview-badge {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .preview-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .preview-service {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .preview-total {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+        }
+        
+        .preview-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .preview-detail:last-child {
+            border-bottom: none;
+        }
+        
+        .price-range {
+            margin-top: 20px;
+        }
+        
+        .price-range-bar {
+            height: 8px;
+            background: linear-gradient(90deg, #4CAF50 0%, #FFC107 50%, #f44336 100%);
+            border-radius: 4px;
+            margin-top: 10px;
+            position: relative;
+        }
+        
+        .price-range-marker {
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            background: #1a1a1a;
+            border-radius: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .price-range-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .preview-note {
+            font-size: 12px;
+            color: #999;
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        /* Нижняя секция */
+        .quick-calc {
+            background: #f5f5f5;
+            padding: 60px 0;
+            margin-top: 60px;
+        }
+        
+        .quick-calc-content {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 40px;
+            align-items: center;
+        }
+        
+        .quick-calc h2 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .quick-calc p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+            max-width: 500px;
+        }
+        
+        .btn-calc {
+            padding: 16px 32px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn-calc:hover {
+            background: #1976D2;
+        }
+        
+        /* Преимущества */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            padding: 60px 0;
+        }
+        
+        .feature {
+            text-align: center;
+            padding: 30px;
+            background: #f9f9f9;
+            border-radius: 12px;
+        }
+        
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .feature-desc {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        /* Калькулятор */
+        .calculator-section {
+            padding: 60px 0;
+            display: none;
+        }
+        
+        .calculator-section.active {
+            display: block;
+        }
+        
+        .calculator {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #f9f9f9;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .calculator h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group select:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        
+        .btn-calculate {
+            width: 100%;
+            padding: 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn-calculate:hover {
+            background: #45a049;
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .result h3 {
+            margin-bottom: 15px;
+            color: #4CAF50;
+        }
+        
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .result-row:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        
+        .error {
+            background: #ffdddd;
+            color: #cc0000;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        /* Подвал */
+        footer {
+            background: #1a1a1a;
+            color: white;
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .footer-links a {
+            color: #999;
+            text-decoration: none;
+            margin-left: 20px;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Шапка -->
+        <header>
+            <div>
+                <span class="logo">Auto<span>Rate</span></span>
+                <span class="logo-sub">Честные цены на автоуслуги</span>
+            </div>
+            <div class="header-buttons">
+                <button class="btn-login">Войти</button>
+                <button class="btn-start">Начать бесплатно →</button>
+            </div>
+        </header>
+        
+        <!-- Главный блок -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Сравните цены на автоуслуги</h1>
+                <p class="subtitle">Рассчитайте стоимость ремонта и обслуживания автомобиля по данным из сервисов по всей России</p>
+                
+                <div class="search-form">
+                    <input type="text" placeholder="Какая услуга нужна? Например: замена масла">
+                    <input type="text" placeholder="Ваш город. Например: Москва">
+                    <button class="btn-search">Сравнить цены →</button>
+                </div>
+                
+                <nav class="nav-links">
+                    <a href="#" onclick="showCalculator()">Каталог услуг</a>
+                    <a href="#" onclick="showCalculator()">Расчёт стоимости</a>
+                    <a href="#">Данные по городам</a>
+                </nav>
+            </div>
+            
+            <!-- Карточка превью -->
+            <div class="preview-card">
+                <span class="preview-badge">✓ Проверено</span>
+                <div class="preview-title">Ориентир по цене</div>
+                <div class="preview-service">Замена масла • Москва</div>
+                <div class="preview-total">2 200 ₽</div>
+                <div class="preview-detail">
+                    <span>Работа</span>
+                    <span>500 ₽</span>
+                </div>
+                <div class="preview-detail">
+                    <span>Масло 5W-40</span>
+                    <span>1 700 ₽</span>
+                </div>
+                <div class="price-range">
+                    <div style="font-size: 14px; color: #666; margin-bottom: 5px;">Диапазон цен</div>
+                    <div class="price-range-bar">
+                        <div class="price-range-marker"></div>
+                    </div>
+                    <div class="price-range-labels">
+                        <span>1 500 ₽</span>
+                        <span>2 200 ₽</span>
+                        <span>3 500 ₽</span>
+                    </div>
+                </div>
+                <div class="preview-note">Средняя цена по данным сервисов</div>
+            </div>
+        </section>
+        
+        <!-- Нижняя секция -->
+        <section class="quick-calc">
+            <div class="container">
+                <div class="quick-calc-content">
+                    <div>
+                        <h2>БЫСТРЫЙ РАСЧЁТ</h2>
+                        <p>Получите ориентир по стоимости услуги за пару минут. Выберите услугу и город — система покажет средние цены по сервисам.</p>
+                    </div>
+                    <button class="btn-calc" onclick="showCalculator()">Открыть калькулятор →</button>
+                </div>
+                
+                <!-- Преимущества -->
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-title">Прозрачные ориентиры</div>
+                        <div class="feature-desc">Честные данные без накруток</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">⏱️</div>
+                        <div class="feature-title">Экономия времени</div>
+                        <div class="feature-desc">Расчёт за 30 секунд</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🔧</div>
+                        <div class="feature-title">Работы по категориям</div>
+                        <div class="feature-desc">Все популярные услуги</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">🔄</div>
+                        <div class="feature-title">Актуальные данные</div>
+                        <div class="feature-desc">Обновление каждую неделю</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Калькулятор -->
+        <section class="calculator-section" id="calculator">
+            <div class="calculator">
+                <h2>🔧 Калькулятор стоимости</h2>
+                
+                <div class="form-group">
+                    <label for="service_id">Услуга:</label>
+                    <select id="service_id">
+                        <option value="">Выберите услугу</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="car_id">Город:</label>
+                    <select id="car_id">
+                        <option value="">Выберите город</option>
+                    </select>
+                </div>
+                
+                <button class="btn-calculate" onclick="calculate()">Рассчитать стоимость</button>
+                
+                <div id="result" class="result">
+                    <h3>✓ Результат расчёта</h3>
+                    <div class="result-row">
+                        <span>Услуга:</span>
+                        <span id="res_service"></span>
+                    </div>
+                    <div class="result-row">
+                        <span>Город:</span>
+                        <span id="res_city"></span>
+                    </div>
+                    <div class="result-row">
+                        <span>Время работ:</span>
+                        <span id="res_labor"></span>
+                    </div>
+                    <div class="result-row">
+                        <span>Базовая цена:</span>
+                        <span id="res_base"></span>
+                    </div>
+                    <div class="result-row">
+                        <span>Итого:</span>
+                        <span id="res_total"></span>
+                    </div>
+                </div>
+                
+                <div id="error" class="error">
+                    <strong>Ошибка:</strong> <span id="error_msg"></span>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Подвал -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">AutoRate</div>
+                <div class="footer-links">
+                    <a href="#">О проекте</a>
+                    <a href="#">Контакты</a>
+                    <a href="#">API</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        let services = [];
+        let cities = [];
+        
+        async function loadData() {
+            const res = await fetch('/api/data');
+            const data = await res.json();
+            services = data.services;
+            cities = data.cities;
+            
+            const serviceSelect = document.getElementById('service_id');
+            services.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = s.name;
+                serviceSelect.appendChild(opt);
+            });
+            
+            const citySelect = document.getElementById('car_id');
+            cities.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.name;
+                citySelect.appendChild(opt);
+            });
+        }
+        
+        function showCalculator() {
+            document.getElementById('calculator').classList.add('active');
+            document.getElementById('calculator').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        async function calculate() {
+            const service_id = document.getElementById('service_id').value;
+            const car_id = document.getElementById('car_id').value;
+            
+            if (!service_id || !car_id) {
+                showError('Выберите услугу и город!');
+                return;
+            }
+            
+            const res = await fetch('/api/calculate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({service_id: parseInt(service_id), car_id: parseInt(car_id)})
+            });
+            
+            const data = await res.json();
+            
+            if (res.ok) {
+                showResult(data);
+            } else {
+                showError(data.error || 'Ошибка расчёта');
+            }
+        }
+        
+        function showResult(data) {
+            document.getElementById('res_service').textContent = services.find(s => s.id == data.service_id).name;
+            document.getElementById('res_city').textContent = cities.find(c => c.id == data.car_id).name;
+            document.getElementById('res_labor').textContent = data.labor_time + ' ч.';
+            document.getElementById('res_base').textContent = data.base_price + ' ₽';
+            document.getElementById('res_total').textContent = data.total_price + ' ₽';
+            
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+        }
+        
+        function showError(msg) {
+            document.getElementById('error_msg').textContent = msg;
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+        }
+        
+        loadData();
+    </script>
+</body>
+</html>
