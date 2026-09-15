@@ -7,7 +7,20 @@ router = APIRouter(tags=["seed"])
 
 @router.get("/seed")
 def seed_data(db: Session = Depends(get_db)):
-    # Тестовые города
+    # 1) Обновляем старые записи services: проставляем дефолты там, где NULL
+    db.execute(
+        text("""
+            UPDATE services
+            SET
+                base_time_minutes = COALESCE(base_time_minutes, 60),
+                complexity_factor = COALESCE(complexity_factor, 1.0)
+            WHERE
+                base_time_minutes IS NULL
+                OR complexity_factor IS NULL
+        """)
+    )
+
+    # 2) Тестовые города
     cities = [
         {"name": "Москва", "region": "Москва"},
         {"name": "Санкт-Петербург", "region": "Санкт-Петербург"},
@@ -16,15 +29,43 @@ def seed_data(db: Session = Depends(get_db)):
         {"name": "Новосибирск", "region": "Новосибирская область"},
     ]
 
-    # Тестовые услуги
+    # 3) Тестовые услуги
     services = [
-        {"name": "Замена масла в двигателе", "category": "engine"},
-        {"name": "Замена тормозных колодок", "category": "brakes"},
-        {"name": "Диагностика двигателя", "category": "engine"},
-        {"name": "Замена воздушного фильтра", "category": "engine"},
-        {"name": "Замена свечей зажигания", "category": "engine"},
-        {"name": "Балансировка колёс", "category": "wheels"},
-        {"name": "Замена аккумулятора", "category": "electrical"},
+        {
+            "name": "Замена масла в двигателе",
+            "category": "engine",
+            "description": "Замена моторного масла",
+            "base_time_minutes": 60,
+            "complexity_factor": 1.0,
+        },
+        {
+            "name": "Замена тормозных колодок",
+            "category": "brakes",
+            "description": "Замена передних тормозных колодок",
+            "base_time_minutes": 90,
+            "complexity_factor": 1.2,
+        },
+        {
+            "name": "Диагностика двигателя",
+            "category": "engine",
+            "description": "Компьютерная диагностика",
+            "base_time_minutes": 45,
+            "complexity_factor": 1.0,
+        },
+        {
+            "name": "Замена воздушного фильтра",
+            "category": "engine",
+            "description": "Замена фильтра двигателя",
+            "base_time_minutes": 30,
+            "complexity_factor": 1.0,
+        },
+        {
+            "name": "Замена свечей зажигания",
+            "category": "engine",
+            "description": "Замена свечей",
+            "base_time_minutes": 60,
+            "complexity_factor": 1.1,
+        },
     ]
 
     # Добавляем города
@@ -44,8 +85,8 @@ def seed_data(db: Session = Depends(get_db)):
     for service in services:
         db.execute(
             text("""
-                INSERT INTO services (name, category)
-                SELECT :name, :category
+                INSERT INTO services (name, category, description, base_time_minutes, complexity_factor)
+                SELECT :name, :category, :description, :base_time_minutes, :complexity_factor
                 WHERE NOT EXISTS (
                     SELECT 1 FROM services WHERE name = :name
                 )
@@ -57,7 +98,7 @@ def seed_data(db: Session = Depends(get_db)):
 
     return {
         "status": "ok",
-        "message": "Добавлены тестовые города и услуги.",
+        "message": "Добавлены/обновлены тестовые города и услуги.",
         "cities_count": len(cities),
         "services_count": len(services),
     }
