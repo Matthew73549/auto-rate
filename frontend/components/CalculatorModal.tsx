@@ -14,17 +14,9 @@ interface City {
 }
 
 interface CalculateResult {
-  service_id: number;
-  city_id: number;
-  labor_time: number;
-  base_price: number;
-  coef_mileage: number;
-  coef_age: number;
-  coef_access: number;
-  coef_urgency: number;
-  coef_tool: number;
-  total_coef: number;
-  total_price: number;
+  base_price_avg: number;
+  coefficients: Record<string, number>;
+  final_price: number;
 }
 
 interface CalculatorModalProps {
@@ -49,6 +41,7 @@ export default function CalculatorModal({ isOpen, onClose }: CalculatorModalProp
     access: 'normal',
     urgency: 'normal',
     tool: 'none',
+    bolts_rusted: false,
   });
 
   useEffect(() => {
@@ -79,7 +72,6 @@ export default function CalculatorModal({ isOpen, onClose }: CalculatorModalProp
     if (isOpen) {
       loadApiData();
     } else {
-      // Сброс при закрытии
       setSelectedService(null);
       setSelectedCity(null);
       setResult(null);
@@ -99,6 +91,46 @@ export default function CalculatorModal({ isOpen, onClose }: CalculatorModalProp
     setError('');
     setResult(null);
 
+    // Преобразование mileage в км
+    let mileage_km = 50000;
+    switch (formData.mileage) {
+      case 'under_50k':
+        mileage_km = 40000;
+        break;
+      case '50k_100k':
+        mileage_km = 75000;
+        break;
+      case '100k_200k':
+        mileage_km = 150000;
+        break;
+      case 'over_200k':
+        mileage_km = 250000;
+        break;
+    }
+
+    // Преобразование age в годы
+    let age_years = 5;
+    switch (formData.age) {
+      case 'under_3':
+        age_years = 2;
+        break;
+      case '3_7':
+        age_years = 5;
+        break;
+      case '7_15':
+        age_years = 10;
+        break;
+      case 'over_15':
+        age_years = 18;
+        break;
+    }
+
+    // Преобразование access в access_level
+    const accessLevelMap: Record<string, string> = {
+      normal: 'easy',
+      difficult: 'medium',
+    };
+
     try {
       const res = await fetch(`${API_URL}/api/calculator`, {
         method: 'POST',
@@ -106,11 +138,12 @@ export default function CalculatorModal({ isOpen, onClose }: CalculatorModalProp
         body: JSON.stringify({
           service_id: parseInt(selectedService.value),
           city_id: parseInt(selectedCity.value),
-          mileage: formData.mileage,
-          age: formData.age,
-          access: formData.access,
+          age_years,
+          mileage_km,
+          bolts_rusted: formData.bolts_rusted,
+          access_level: accessLevelMap[formData.access] || 'easy',
+          special_tool_needed: formData.tool === 'special',
           urgency: formData.urgency,
-          tool: formData.tool,
         }),
       });
 
@@ -119,7 +152,7 @@ export default function CalculatorModal({ isOpen, onClose }: CalculatorModalProp
       if (res.ok) {
         setResult(data);
       } else {
-        setError(data.error || 'Ошибка расчёта');
+        setError(data.detail?.[0]?.msg || data.error || 'Ошибка расчёта');
       }
     } catch (err) {
       setError('Не удалось подключиться к серверу');
@@ -265,6 +298,18 @@ export default function CalculatorModal({ isOpen, onClose }: CalculatorModalProp
                     <option value="special">Нужен</option>
                   </select>
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-gray-700">Прикипевшие болты</label>
+                  <select
+                    value={formData.bolts_rusted ? 'true' : 'false'}
+                    onChange={(e) => setFormData({ ...formData, bolts_rusted: e.target.value === 'true' })}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                  >
+                    <option value="false">Нет</option>
+                    <option value="true">Да</option>
+                  </select>
+                </div>
               </div>
 
               <button
@@ -288,46 +333,38 @@ export default function CalculatorModal({ isOpen, onClose }: CalculatorModalProp
               <h3 className="font-bold text-lg mb-3 text-green-600">✓ Результат расчёта</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span>Услуга:</span>
-                  <span className="font-medium">{selectedService?.label}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Город:</span>
-                  <span className="font-medium">{selectedCity?.label}</span>
-                </div>
-                <div className="flex justify-between">
                   <span>Базовая цена:</span>
-                  <span>{result.base_price} ₽</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Время работ:</span>
-                  <span>{result.labor_time} ч.</span>
+                  <span>{result.base_price_avg} ₽</span>
                 </div>
                 <div className="border-t pt-2 mt-2">
                   <div className="flex justify-between text-xs text-gray-600">
-                    <span>Пробег (×{result.coef_mileage}):</span>
-                    <span>{(result.base_price * result.labor_time * (result.coef_mileage - 1)).toFixed(0)} ₽</span>
+                    <span>Возраст (×{result.coefficients.age}):</span>
+                    <span>{result.coefficients.age}</span>
                   </div>
                   <div className="flex justify-between text-xs text-gray-600">
-                    <span>Возраст (×{result.coef_age}):</span>
-                    <span>{(result.base_price * result.labor_time * (result.coef_age - 1)).toFixed(0)} ₽</span>
+                    <span>Пробег (×{result.coefficients.mileage}):</span>
+                    <span>{result.coefficients.mileage}</span>
                   </div>
                   <div className="flex justify-between text-xs text-gray-600">
-                    <span>Доступ (×{result.coef_access}):</span>
-                    <span>{(result.base_price * result.labor_time * (result.coef_access - 1)).toFixed(0)} ₽</span>
+                    <span>Болты (×{result.coefficients.bolts}):</span>
+                    <span>{result.coefficients.bolts}</span>
                   </div>
                   <div className="flex justify-between text-xs text-gray-600">
-                    <span>Срочность (×{result.coef_urgency}):</span>
-                    <span>{(result.base_price * result.labor_time * (result.coef_urgency - 1)).toFixed(0)} ₽</span>
+                    <span>Доступ (×{result.coefficients.access}):</span>
+                    <span>{result.coefficients.access}</span>
                   </div>
                   <div className="flex justify-between text-xs text-gray-600">
-                    <span>Инструмент (×{result.coef_tool}):</span>
-                    <span>{(result.base_price * result.labor_time * (result.coef_tool - 1)).toFixed(0)} ₽</span>
+                    <span>Инструмент (×{result.coefficients.tool}):</span>
+                    <span>{result.coefficients.tool}</span>
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-600">
+                    <span>Срочность (×{result.coefficients.urgency}):</span>
+                    <span>{result.coefficients.urgency}</span>
                   </div>
                 </div>
                 <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2">
                   <span>Итого:</span>
-                  <span className="text-green-600">{result.total_price} ₽</span>
+                  <span className="text-green-600">{result.final_price} ₽</span>
                 </div>
               </div>
             </div>
