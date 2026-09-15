@@ -68,6 +68,23 @@ def seed_data(db: Session = Depends(get_db)):
         },
     ]
 
+    # 4) Тестовые цены (для всех городов и нескольких услуг)
+    prices = [
+        # service_id=1 (Замена масла) для всех городов
+        {"service_name": "Замена масла в двигателе", "city_name": "Москва", "price_min": 800, "price_avg": 1200, "price_max": 1600},
+        {"service_name": "Замена масла в двигателе", "city_name": "Санкт-Петербург", "price_min": 700, "price_avg": 1000, "price_max": 1400},
+        {"service_name": "Замена масла в двигателе", "city_name": "Казань", "price_min": 600, "price_avg": 900, "price_max": 1200},
+        {"service_name": "Замена масла в двигателе", "city_name": "Екатеринбург", "price_min": 600, "price_avg": 900, "price_max": 1200},
+        {"service_name": "Замена масла в двигателе", "city_name": "Новосибирск", "price_min": 600, "price_avg": 900, "price_max": 1200},
+        
+        # service_id=2 (Замена колодок) для Москвы и СПб
+        {"service_name": "Замена тормозных колодок", "city_name": "Москва", "price_min": 1500, "price_avg": 2500, "price_max": 3500},
+        {"service_name": "Замена тормозных колодок", "city_name": "Санкт-Петербург", "price_min": 1400, "price_avg": 2200, "price_max": 3000},
+        
+        # service_id=3 (Диагностика) для Москвы
+        {"service_name": "Диагностика двигателя", "city_name": "Москва", "price_min": 1000, "price_avg": 1500, "price_max": 2000},
+    ]
+
     # Добавляем города
     for city in cities:
         db.execute(
@@ -94,11 +111,29 @@ def seed_data(db: Session = Depends(get_db)):
             service
         )
 
+    # Добавляем цены
+    for price in prices:
+        db.execute(
+            text("""
+                INSERT INTO prices (service_id, city_id, price_min, price_avg, price_max)
+                SELECT s.id, c.id, :price_min, :price_avg, :price_max
+                FROM services s, cities c
+                WHERE s.name = :service_name
+                  AND c.name = :city_name
+                  AND NOT EXISTS (
+                    SELECT 1 FROM prices p
+                    WHERE p.service_id = s.id AND p.city_id = c.id
+                  )
+            """),
+            price
+        )
+
     db.commit()
 
     return {
         "status": "ok",
-        "message": "Добавлены/обновлены тестовые города и услуги.",
+        "message": "Добавлены/обновлены тестовые города, услуги и цены.",
         "cities_count": len(cities),
         "services_count": len(services),
+        "prices_count": len(prices),
     }
