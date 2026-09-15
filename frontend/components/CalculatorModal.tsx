@@ -100,7 +100,7 @@ export default function CalculatorModal({ isOpen, onClose }: CalculatorModalProp
     setResult(null);
 
     try {
-      const res = await fetch(`${API_URL}/api/calculate`, {
+      const res = await fetch(`${API_URL}/api/calculator`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

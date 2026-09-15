@@ -99,7 +99,7 @@ export default function CalculatorPage() {
 
     try {
       const userId = localStorage.getItem("user_id");
-      const response = await axios.post(`${API_URL}/api/calculate`, {
+      const response = await axios.post(`${API_URL}/api/calculator`, {
         service_id: Number(form.service_id),
         city_id: Number(form.city_id),
         mileage: form.mileage,
