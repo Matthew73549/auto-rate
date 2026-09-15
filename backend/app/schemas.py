@@ -46,10 +46,10 @@ class PriceResponse(BaseModel):
     price_min: float
     price_avg: float
     price_max: float
-    source: str
-    updated_at: datetime
-    city_name: str
-    service_name: str
+    source: Optional[str] = None
+    updated_at: Optional[datetime] = None
+    city_name: Optional[str] = None
+    service_name: Optional[str] = None
 
 class CalculatorInput(BaseModel):
     service_id: int
