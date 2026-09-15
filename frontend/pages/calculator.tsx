@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-const API_URL = "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://auto-rate.onrender.com";
 
 type Service = {
   id: number;
@@ -72,7 +72,7 @@ export default function CalculatorPage() {
         }
       } catch {
         setError(
-          "Не удалось загрузить услуги и города. Убедитесь, что Flask-сервер запущен на порту 5000."
+          "Не удалось загрузить услуги и города. Убедитесь, что бэкенд доступен."
         );
       } finally {
         setIsLoadingData(false);
