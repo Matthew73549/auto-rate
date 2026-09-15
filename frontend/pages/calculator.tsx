@@ -51,23 +51,28 @@ export default function CalculatorPage() {
       setError("");
 
       try {
-        const response = await axios.get(`${API_URL}/api/data`);
-        const data = response.data;
+        const [servicesRes, citiesRes] = await Promise.all([
+          axios.get(`${API_URL}/api/services`),
+          axios.get(`${API_URL}/api/services/cities`),
+        ]);
 
-        setServices(data.services || []);
-        setCities(data.cities || []);
+        const services = servicesRes.data || [];
+        const cities = citiesRes.data || [];
 
-        if (data.services?.length > 0) {
+        setServices(services);
+        setCities(cities);
+
+        if (services.length > 0) {
           setForm((current) => ({
             ...current,
-            service_id: String(data.services[0].id),
+            service_id: String(services[0].id),
           }));
         }
 
-        if (data.cities?.length > 0) {
+        if (cities.length > 0) {
           setForm((current) => ({
             ...current,
-            city_id: String(data.cities[0].id),
+            city_id: String(cities[0].id),
           }));
         }
       } catch {

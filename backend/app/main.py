@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .database import engine, Base
-from .routers import auth, services, prices, calculator, cars, vin, admin
+from .routers import auth, services, prices, calculator, cars, vin, admin, seed
 from .config import PROJECT_NAME
 
 Base.metadata.create_all(bind=engine)
@@ -25,6 +25,7 @@ app.include_router(calculator.router, prefix="/api")
 app.include_router(cars.router, prefix="/api")
 app.include_router(vin.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
+app.include_router(seed.router, prefix="/api")
 
 
 @app.get("/")

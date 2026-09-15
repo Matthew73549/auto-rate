@@ -52,28 +52,32 @@ export default function CalculatorModal({ isOpen, onClose }: CalculatorModalProp
   });
 
   useEffect(() => {
-    if (isOpen) {
+    const loadApiData = async () => {
       setDataLoading(true);
       setError('');
       setResult(null);
-      
-      fetch(`${API_URL}/api/data`)
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error('Не удалось подключиться к серверу');
-          }
-          return res.json();
-        })
-        .then((data) => {
-          setServices(data.services || []);
-          setCities(data.cities || []);
-          setDataLoading(false);
-        })
-        .catch((err) => {
-          console.error('Error loading data:', err);
-          setError('Не удалось загрузить данные. Убедитесь, что Flask-сервер запущен на порту 5000.');
-          setDataLoading(false);
-        });
+
+      try {
+        const [servicesRes, citiesRes] = await Promise.all([
+          fetch(`${API_URL}/api/services`),
+          fetch(`${API_URL}/api/services/cities`),
+        ]);
+
+        const services = servicesRes.ok ? await servicesRes.json() : [];
+        const cities = citiesRes.ok ? await citiesRes.json() : [];
+
+        setServices(services);
+        setCities(cities);
+      } catch (err) {
+        console.error('Error loading data:', err);
+        setError('Не удалось загрузить данные. Убедитесь, что бэкенд доступен.');
+      } finally {
+        setDataLoading(false);
+      }
+    };
+
+    if (isOpen) {
+      loadApiData();
     } else {
       // Сброс при закрытии
       setSelectedService(null);
@@ -85,7 +89,7 @@ export default function CalculatorModal({ isOpen, onClose }: CalculatorModalProp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedService || !selectedCity) {
       setError('Выберите услугу и город');
       return;
